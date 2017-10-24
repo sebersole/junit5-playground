@@ -1,0 +1,1 @@
+Simple project for playing around with JUnit 5 capabilities, leveraging the JUnit 5 Gradle plugin
