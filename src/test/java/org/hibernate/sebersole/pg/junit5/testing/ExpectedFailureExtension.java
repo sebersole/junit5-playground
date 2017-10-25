@@ -6,6 +6,7 @@
  */
 package org.hibernate.sebersole.pg.junit5.testing;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -22,10 +23,9 @@ public class ExpectedFailureExtension
 		implements ExecutionCondition, BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler {
 	public static final String VALIDATE_FAILURE_EXPECTED = "hibernate.test.validatefailureexpected";
 
-	private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(
-			ExpectedFailureExtension.class.getName()
-	);
-	public static final String IS_MARKED_KEY = "IS_MARKED";
+	private static final String IS_MARKED_KEY = "IS_MARKED";
+	private static final String EXPECTED_FAILURE_KEY = "EXPECTED_FAILURE";
+
 
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,8 +58,8 @@ public class ExpectedFailureExtension
 		}
 		else {
 			return performExpectedFailureValidation
-					? ConditionEvaluationResult.enabled( "hibernate.test.validatefailureexpected" )
-					: ConditionEvaluationResult.disabled( "@ExpectedFailure" );
+					? ConditionEvaluationResult.enabled( "Enabled : @ExpectedFailure + `" + VALIDATE_FAILURE_EXPECTED + "=true`" )
+					: ConditionEvaluationResult.disabled( "Disabled : @ExpectedFailure" );
 		}
 	}
 
@@ -110,29 +110,46 @@ public class ExpectedFailureExtension
 
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
-		if ( !context.getExecutionException().isPresent() ) {
-			// the test did not fail - see if it is an `@ExpectedFailure` and, if so,
-			//		throw a ExpectedFailureDidNotFail
-			if ( context.getStore( generateNamespace( context ) ).get( IS_MARKED_KEY ) == Boolean.TRUE ) {
-				throw new ExpectedFailureDidNotFail();
+		final ExtensionContext.Store store = context.getStore( generateNamespace( context ) );
+
+		if ( store.get( IS_MARKED_KEY ) == Boolean.TRUE ) {
+			// see if we had an expected failure...
+			final Throwable expectedFailure = (Throwable) store.remove( EXPECTED_FAILURE_KEY );
+			if ( expectedFailure == null ) {
+				// there was no expected-failure, even though we are expecting one
+				throw new ExpectedFailureDidNotFail( context );
 			}
 		}
 	}
 
 	private static class ExpectedFailureDidNotFail extends RuntimeException {
+		public ExpectedFailureDidNotFail(ExtensionContext context) {
+			super(
+					String.format(
+							Locale.ROOT,
+							"`%s#%s` was marked as `@ExpectedFailure`, but did not fail",
+							context.getRequiredTestClass().getName(),
+							context.getRequiredTestMethod().getName()
+					)
+			);
+		}
 	}
 
 	@Override
 	public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
-		if ( context.getStore( generateNamespace( context ) ).get( IS_MARKED_KEY ) == Boolean.TRUE ) {
-			// test is marked as an `@ExpectedFailure`
-			if ( context.getExecutionException().isPresent() ) {
-				// and a failure occurred -- eat it
-				return;
-			}
+
+		final ExtensionContext.Store store = context.getStore( generateNamespace( context ) );
+		if ( store.get( IS_MARKED_KEY ) == Boolean.TRUE ) {
+			// test is marked as an `@ExpectedFailure`:
+
+			//		1) add an entry to the store
+			store.put( EXPECTED_FAILURE_KEY, throwable );
+
+			// 		2) eat the failure
+			return;
 		}
 
-		// otherwise, just re-throw
+		// otherwise, re-throw
 		throw throwable;
 	}
 }
