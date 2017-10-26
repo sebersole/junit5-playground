@@ -9,7 +9,6 @@ package org.hibernate.sebersole.pg.junit5.functional.dialect;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.OracleDialect;
 import org.hibernate.sebersole.pg.junit5.testing.RequiresDialect;
@@ -23,11 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Andrea Boriero
  */
-public class ParameterizedRequiresDialectOnMethod extends AbstractDialectSpecificTest {
-	@Override
-	public Dialect getDialect() {
-		return new H2Dialect();
-	}
+public class ParameterizedRequiresDialectOnMethod extends AbstractDialectFilteringTest {
 
 	@RequiresDialect(dialectClass = OracleDialect.class)
 	@ParameterizedTest
