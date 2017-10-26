@@ -6,8 +6,8 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.expectedFailure;
 
-import org.hibernate.sebersole.pg.junit5.testing.ExpectedFailure;
-import org.hibernate.sebersole.pg.junit5.testing.ExpectedFailureExtension;
+import org.hibernate.sebersole.pg.junit5.testing.FailureExpected;
+import org.hibernate.sebersole.pg.junit5.testing.FailureExpectedExtension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -16,12 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 /**
  * @author Steve Ebersole
  */
-@ExtendWith( ExpectedFailureExtension.class  )
+@ExtendWith( FailureExpectedExtension.class  )
 @TestInstance( TestInstance.Lifecycle.PER_CLASS )
 public class ExpectedFailureNoFail {
 
 	@Test
-	@ExpectedFailure( "To test it" )
+	@FailureExpected( "To test it" )
 	public void noFail() {
 	}
 }

@@ -6,8 +6,6 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.dialect;
 
-import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
-import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.OracleDialect;
 import org.hibernate.sebersole.pg.junit5.testing.SkipForDialect;
 
@@ -16,13 +14,8 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Steve Ebersole
  */
-public class SkipForDialectOnMethodMiss extends AbstractDialectSpecificTest {
-
-	@Override
-	public Dialect getDialect() {
-		return new H2Dialect();
-	}
-
+@SuppressWarnings("WeakerAccess")
+public class SkipForDialectOnMethodMiss extends AbstractDialectFilteringTest {
 	@Test
 	@SkipForDialect( dialectClass = OracleDialect.class )
 	public void shouldExecute() {

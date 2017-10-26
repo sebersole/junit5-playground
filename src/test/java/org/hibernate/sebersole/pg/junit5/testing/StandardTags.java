@@ -6,16 +6,12 @@
  */
 package org.hibernate.sebersole.pg.junit5.testing;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
  * @author Steve Ebersole
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ExpectedFailure {
-	String value();
+public final class StandardTags {
+	public static final String FAILURE_EXPECTED = "failure-expected";
+
+	private StandardTags() {
+	}
 }

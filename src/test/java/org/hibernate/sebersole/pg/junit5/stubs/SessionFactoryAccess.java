@@ -9,6 +9,11 @@ package org.hibernate.sebersole.pg.junit5.stubs;
 /**
  * @author Steve Ebersole
  */
-public interface SessionFactoryAccess {
+public interface SessionFactoryAccess extends DialectAccess {
 	SessionFactory getSessionFactory();
+
+	@Override
+	default Dialect getDialect() {
+		return getSessionFactory().getDialect();
+	}
 }

@@ -6,21 +6,22 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.dialect;
 
-import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
 import org.hibernate.sebersole.pg.junit5.testing.RequiresDialect;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Steve Ebersole
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 @RequiresDialect( dialectClass = H2Dialect.class )
-public class RequiresDialectOnClassMatch extends AbstractDialectSpecificTest {
+public class RequiresDialectOnClassMatch extends AbstractDialectFilteringTest {
 
-	@Override
-	public Dialect getDialect() {
-		return new H2Dialect();
+	@BeforeAll
+	public void beforeAll() {
+		System.out.println( "RequiresDialectOnClassMatch##BeforeAll" );
 	}
 
 	@Test

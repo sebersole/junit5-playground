@@ -12,6 +12,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Grouping annotation for `@JiraKey`
+ *
+ * @see JiraKey
+ *
  * @author Steve Ebersole
  */
 @Retention( RetentionPolicy.RUNTIME )

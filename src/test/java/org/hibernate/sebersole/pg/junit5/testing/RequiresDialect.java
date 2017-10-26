@@ -14,11 +14,21 @@ import java.lang.annotation.Target;
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 
 /**
+ * Indicates that the annotated test class/method should only
+ * be run when the indicated Dialect is being used.
+ *
  * @author Steve Ebersole
  */
 @Retention( RetentionPolicy.RUNTIME )
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 public @interface RequiresDialect {
+	/**
+	 * The Dialect class to match.
+	 */
 	Class<? extends Dialect> dialectClass();
-	boolean allowSubTypes() default false;
+
+	/**
+	 * Should subtypes of {@link #dialectClass()} be matched?
+	 */
+	boolean matchSubTypes() default false;
 }

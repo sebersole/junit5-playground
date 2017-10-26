@@ -18,7 +18,8 @@ import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
  * @author Steve Ebersole
  */
 @Retention( RetentionPolicy.RUNTIME )
-@Target({ElementType.TYPE, ElementType.METHOD})
+
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Repeatable( SkipForDialectGroup.class  )
 public @interface SkipForDialect {
 	Class<? extends Dialect> dialectClass();

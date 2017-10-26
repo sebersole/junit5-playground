@@ -9,7 +9,6 @@ package org.hibernate.sebersole.pg.junit5.testing;
 import java.util.function.Supplier;
 
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
-import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
 
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
@@ -18,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 /**
  * @author Steve Ebersole
  */
-public class DialectCondition implements ExecutionCondition {
+public class DialectFilterExtension implements ExecutionCondition {
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 		if ( !context.getTestInstance().isPresent() ) {
@@ -32,11 +31,19 @@ public class DialectCondition implements ExecutionCondition {
 		}
 
 		final Object testInstance = context.getRequiredTestInstance();
-		if ( !DialectAccess.class.isInstance( testInstance ) ) {
-			throw new RuntimeException( "Test instance does not implement DialectAccess" );
+		final ExtensionContext.Store store = context.getStore( SessionFactoryScopeExtension.NAMESPACE );
+		final SessionFactoryScope sfScope = (SessionFactoryScope) store.get( testInstance );
+		if ( sfScope == null ) {
+			throw new RuntimeException( "Could not locate SessionFactoryScope in JUnit ExtensionContext" );
 		}
 
-		final Dialect dialect = ( (DialectAccess) testInstance ).getDialect();
+		final Dialect dialect = sfScope.getDialect();
+		if ( dialect == null ) {
+			throw new RuntimeException( "#getDialect returned null" );
+		}
+
+		System.out.printf( "Checking Dialect [%s] - context = %s", dialect, context.getDisplayName() );
+		System.out.println();
 
 		// NOTE : JUnit will call this method once at the Class (container) level,
 		//		and then again for each test
@@ -77,7 +84,7 @@ public class DialectCondition implements ExecutionCondition {
 		RequiresDialect requiresDialect = requiresDialectSupplier.get();
 
 		if ( requiresDialect != null ) {
-			if ( requiresDialect.allowSubTypes() ) {
+			if ( requiresDialect.matchSubTypes() ) {
 				if ( requiresDialect.dialectClass().isAssignableFrom( dialect.getClass() ) ) {
 					return ConditionEvaluationResult.enabled( "Matched @RequiresDialect" );
 				}
@@ -95,7 +102,6 @@ public class DialectCondition implements ExecutionCondition {
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// check @SkipForDialect
 
-		// isn't the VM supposed to group these?  that was not what happens locally
 		final SkipForDialect loneSkipForDialect = loneSkipForDialectSupplier.get();
 		if ( loneSkipForDialect != null ) {
 			if ( loneSkipForDialect.allowSubTypes() ) {
@@ -115,7 +121,7 @@ public class DialectCondition implements ExecutionCondition {
 			for ( SkipForDialect skipForDialect : skipForDialectGroup.value() ) {
 				if ( skipForDialect.allowSubTypes() ) {
 					if ( skipForDialect.dialectClass().isAssignableFrom( dialect.getClass() ) ) {
-						return ConditionEvaluationResult.disabled( "Matched @SkipForDialect" );
+						return ConditionEvaluationResult.disabled( "Matched @SkipForDialect(group)" );
 					}
 				}
 				else {

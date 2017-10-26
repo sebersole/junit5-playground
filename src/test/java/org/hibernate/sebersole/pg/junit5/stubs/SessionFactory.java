@@ -12,4 +12,11 @@ package org.hibernate.sebersole.pg.junit5.stubs;
  * @author Steve Ebersole
  */
 public interface SessionFactory {
+	Dialect getDialect();
+
+	Session openSession();
+
+	boolean isClosed();
+
+	void close();
 }
