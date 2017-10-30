@@ -6,15 +6,13 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema.stubs;
 
-import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
-import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
-
 /**
  * @author Andrea Boriero
  */
-public interface DatabaseModel {
+public class DatabaseModelImpl implements DatabaseModel {
+	private final MetadataImplementor metatada;
 
-	default Dialect getDialect(){
-		return new H2Dialect();
+	public DatabaseModelImpl(MetadataImplementor metadata) {
+		this.metatada = metadata;
 	}
 }

@@ -7,9 +7,7 @@
 package org.hibernate.sebersole.pg.junit5.functional.schema;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -27,7 +25,6 @@ import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 
 public class SchemaTestTemplate
 		implements TestTemplateInvocationContextProvider, AfterTestExecutionCallback {
-	private SchemaTestContext testContext;
 
 	@Override
 	public boolean supportsTestTemplate(ExtensionContext context) {
@@ -42,13 +39,6 @@ public class SchemaTestTemplate
 
 	private TestTemplateInvocationContext invocationContext(String parameter) {
 		return new CustomTestTemplateInvocationContext( parameter );
-	}
-
-	@Override
-	public void afterTestExecution(ExtensionContext context) throws Exception {
-		if ( testContext != null ) {
-			testContext.cleanUp();
-		}
 	}
 
 	public class CustomTestTemplateInvocationContext
@@ -73,37 +63,35 @@ public class SchemaTestTemplate
 						ParameterContext parameterContext,
 						ExtensionContext extensionContext)
 						throws ParameterResolutionException {
-					return parameterContext.getParameter().getType().equals( SchemaTestContext.class );
+					return parameterContext.getParameter().getType().equals( SchemaScope.class );
 				}
 
 				@Override
-				public SchemaTestContext resolveParameter(
+				public SchemaScope resolveParameter(
 						ParameterContext parameterContext,
 						ExtensionContext extensionContext) {
-					Map<String, Object> settings = new HashMap();
-					SchemaTestContext.SchemaTestContextBuilder schemaTestContextBuilder = new SchemaTestContext.SchemaTestContextBuilder();
+
 					final Object testInstance = extensionContext.getRequiredTestInstance();
-					if ( !BaseSchemaUnitTestCase.class.isInstance( testInstance ) ) {
-						throw new RuntimeException( "Test instance does not implement BaseSchemaUnitTestCase" );
+					if ( !SchemaScope.class.isInstance( testInstance ) ) {
+						throw new RuntimeException( "Test instance does not implement SchemaUpdateScope" );
 					}
 
-					settings.put( SchemaTestContext.METADATA_EXTRACTION_STRATEGY, parameter );
-					BaseSchemaUnitTestCase baseSchemaUnitTestCaseInstance = (BaseSchemaUnitTestCase) testInstance;
-					settings.putAll( baseSchemaUnitTestCaseInstance.getSettings() );
+					SchemaScopeProducer baseSchemaUnitTestCaseInstance = (SchemaScopeProducer) testInstance;
 
-					schemaTestContextBuilder.addSetting( settings );
-					schemaTestContextBuilder.addAnnotatedClasses( baseSchemaUnitTestCaseInstance.getAnnotatedClasses() );
-					schemaTestContextBuilder.addHmbMappingFiles( baseSchemaUnitTestCaseInstance.getHmbMappingFiles() );
-					schemaTestContextBuilder.setCreateSqlScriptTempOutputFile( baseSchemaUnitTestCaseInstance.createSqlScriptTempOutputFile() );
-
-					schemaTestContextBuilder.setDropSchemaAfterTest( baseSchemaUnitTestCaseInstance.dropSchemaAfterTest() );
-
-					testContext = schemaTestContextBuilder.build();
-					return testContext;
+					return baseSchemaUnitTestCaseInstance.produceSchemaUpdateScope( parameter );
 				}
 			} );
 		}
 	}
 
+	@Override
+	public void afterTestExecution(ExtensionContext context) throws Exception {
+		final Object testInstance = context.getRequiredTestInstance();
+		if ( !SchemaScope.class.isInstance( testInstance ) ) {
+			throw new RuntimeException( "Test instance does not implement BaseSchemaUnitTestCase" );
+		}
+
+		( (SchemaScope) testInstance ).clear();
+	}
 
 }
