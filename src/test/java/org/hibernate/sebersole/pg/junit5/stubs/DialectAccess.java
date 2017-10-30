@@ -6,9 +6,14 @@
  */
 package org.hibernate.sebersole.pg.junit5.stubs;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
+
 /**
  * @author Steve Ebersole
  */
 public interface DialectAccess {
+
+	ExtensionContext.Namespace NAMESPACE =  ExtensionContext.Namespace.create( DialectAccess.class.getName()  );
+
 	Dialect getDialect();
 }

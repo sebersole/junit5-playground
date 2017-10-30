@@ -6,33 +6,32 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema;
 
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.BaseSchemaTest;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaScope;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaTest;
+import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.OracleDialect;
 import org.hibernate.sebersole.pg.junit5.testing.RequiresDialect;
-
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Andrea Boriero
  */
-public class FirstSchemaTest extends BaseSchemaUnitTestCase {
+public class FirstSchemaTest extends BaseSchemaTest {
 
-	@TestTemplate
-	@ExtendWith(SchemaTestTemplate.class)
-	void shouldExecuteTest(SchemaTestContext testContext) {
-		String extractionStrategy = (String) testContext.getStandardServiceRegistry()
-				.getSettings()
-				.get( SchemaTestContext.METADATA_EXTRACTION_STRATEGY );
-		System.out.println( "extractionStrategy = " + extractionStrategy );
+	@SchemaTest
+	@RequiresDialect(dialectClass = H2Dialect.class)
+	void shouldExecuteTest(final SchemaScope scope) {
+		scope.withSchemaUpdate( schemaUpdate -> {
+			schemaUpdate.execute();
+		} );
 
 	}
 
-	@TestTemplate
-	@ExtendWith(SchemaTestTemplate.class)
+	@SchemaTest
 	@RequiresDialect(dialectClass = OracleDialect.class)
-	void shouldSkipTest(SchemaTestContext testContext) {
+	void shouldSkipTest(SchemaScope scope) {
 		fail( "The test should not be executed" );
 	}
 
