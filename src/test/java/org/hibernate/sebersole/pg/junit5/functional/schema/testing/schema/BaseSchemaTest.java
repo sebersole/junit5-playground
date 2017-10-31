@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.sebersole.pg.junit5.functional.schema;
+package org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,12 +19,15 @@ import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.SchemaUpdate;
 import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.SchemaValidator;
 import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.StandardServiceRegistry;
 import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.StandardServiceRegistryBuilder;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.HibernateFunctionalTesting;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.TestParameter;
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
 
 /**
  * @author Andrea Boriero
  */
+@HibernateFunctionalTesting
 public class BaseSchemaTest
 		implements DialectAccess, SchemaScope, SchemaScopeProducer {
 	public static String HBM2DDL_JDBC_METADATA_EXTRACTOR_STRATEGY = "hibernate.hbm2ddl.jdbc_metadata_extraction_strategy";
@@ -56,8 +59,8 @@ public class BaseSchemaTest
 	}
 
 	@Override
-	public SchemaScope produceSchemaUpdateScope(String metadataExtractionStrategy) {
-		setStandardServiceRegistry( buildStandardServiceRegistry( metadataExtractionStrategy ) );
+	public SchemaScope produceTestScope(TestParameter<String> metadataExtractionStrategy) {
+		setStandardServiceRegistry( buildStandardServiceRegistry( metadataExtractionStrategy.getValue() ) );
 		databaseModel = buildDatabaseModel();
 		return this;
 	}

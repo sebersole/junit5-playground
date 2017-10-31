@@ -6,7 +6,7 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema.stubs;
 
-import static org.hibernate.sebersole.pg.junit5.functional.schema.BaseSchemaTest.HBM2DDL_JDBC_METADATA_EXTRACTOR_STRATEGY;
+import static org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.BaseSchemaTest.HBM2DDL_JDBC_METADATA_EXTRACTOR_STRATEGY;
 
 /**
  * @author Andrea Boriero

@@ -18,7 +18,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 /**
  * @author Steve Ebersole
  */
-public class DialectFilterExtension implements ExecutionCondition {
+public class DialectFilterExtension
+		implements ExecutionCondition {
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 		if ( !context.getTestInstance().isPresent() ) {
