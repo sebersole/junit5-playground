@@ -27,7 +27,6 @@ import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
 /**
  * @author Andrea Boriero
  */
-@HibernateFunctionalTesting
 public class BaseSchemaTest
 		implements DialectAccess, SchemaScope, SchemaScopeProducer {
 	public static String HBM2DDL_JDBC_METADATA_EXTRACTOR_STRATEGY = "hibernate.hbm2ddl.jdbc_metadata_extraction_strategy";
