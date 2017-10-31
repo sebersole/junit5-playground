@@ -11,8 +11,6 @@ import java.util.Optional;
 import org.hibernate.sebersole.pg.junit5.stubs.SessionFactory;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
@@ -29,15 +27,21 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
  * @author Steve Ebersole
  */
 public class SessionFactoryScopeExtension
-		implements TestInstancePostProcessor, BeforeAllCallback, AfterEachCallback, AfterAllCallback {
+		implements TestInstancePostProcessor, AfterAllCallback {
 
 	public static ExtensionContext.Namespace namespace(Object testInstance) {
 		return create( SessionFactoryScopeExtension.class.getName(), testInstance );
 	}
 
+	public static Optional<SessionFactoryScope> findSessionFactoryScope(ExtensionContext context) {
+		return Optional.of(
+				(SessionFactoryScope) context.getStore( namespace( context.getRequiredTestInstance() ) )
+						.get( SESSION_FACTORY_KEY )
+		);
+	}
+
 	public static final Object SESSION_FACTORY_KEY = "SESSION_FACTORY";
 
-	private static final Object IS_LIFECYCLE_PER_CLASS_KEY = "IS_LIFECYCLE_PER_CLASS";
 
 	public SessionFactoryScopeExtension() {
 		System.out.println( "SessionFactoryScopeExtension#<init>" );
@@ -66,38 +70,9 @@ public class SessionFactoryScopeExtension
 			final SessionFactoryScopeContainer scopeContainer = SessionFactoryScopeContainer.class.cast(
 					testInstance );
 			final SessionFactoryScope scope = new SessionFactoryScope( scopeContainer.getSessionFactoryProducer() );
-			ExtensionContext.Store store = context.getStore( namespace( testInstance ) );
-			store.put( SESSION_FACTORY_KEY, scope );
+			context.getStore( namespace( testInstance ) ).put( SESSION_FACTORY_KEY, scope );
 
 			scopeContainer.injectSessionFactoryScope( scope );
-		}
-	}
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// BeforeAllCallback
-
-	@Override
-	public void beforeAll(ExtensionContext context) throws Exception {
-		System.out.println( "SessionFactoryScopeExtension#beforeAll" );
-		Optional<Object> testInstanceOptional = context.getTestInstance();
-		if ( testInstanceOptional.isPresent() ) {
-			Object testInstance = testInstanceOptional.get();
-			ExtensionContext.Store store = context.getStore( namespace( testInstance ) );
-			store.put( IS_LIFECYCLE_PER_CLASS_KEY, IS_LIFECYCLE_PER_CLASS_KEY );
-		}
-	}
-
-
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// AfterEachCallback
-
-	@Override
-	public void afterEach(ExtensionContext context) throws Exception {
-		System.out.println( "SessionFactoryScopeExtension#afterEach" );
-		Object testInstance = context.getRequiredTestInstance();
-		ExtensionContext.Store store = context.getStore( namespace( testInstance ) );
-		if ( store.get( IS_LIFECYCLE_PER_CLASS_KEY ) == null ) {
-			releaseSessionFactoryIfPresent( testInstance, context );
 		}
 	}
 
@@ -107,13 +82,10 @@ public class SessionFactoryScopeExtension
 
 	@Override
 	public void afterAll(ExtensionContext context) {
-		System.out.println( "SessionFactoryScopeExtension#afterAll" );
-		Optional<Object> testInstanceOptional = context.getTestInstance();
-		if ( testInstanceOptional.isPresent() ) {
-			Object testInstance = testInstanceOptional.get();
-			ExtensionContext.Store store = context.getStore( namespace( testInstance ) );
-			store.remove( IS_LIFECYCLE_PER_CLASS_KEY );
-			releaseSessionFactoryIfPresent( testInstance, context );
+		final SessionFactoryScope scope = (SessionFactoryScope) context.getStore( namespace( context.getRequiredTestInstance() ) )
+				.remove( SESSION_FACTORY_KEY );
+		if ( scope != null ) {
+			scope.releaseSessionFactory();
 		}
 	}
 }

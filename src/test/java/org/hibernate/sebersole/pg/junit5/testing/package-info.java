@@ -6,8 +6,7 @@
  */
 
 /**
- * Annotations and JUnit 5 extensions used in writing tests.  These would
- * live in hibernate-testing/src/main/java.  They's be used in the other module's
- * tests
+ * Extensions based on the extension mechanism of JUnit 5 to support things like
+ * `@FailureExcepted`, `@RequiresDialect`, etc.  Used in writing tests
  */
 package org.hibernate.sebersole.pg.junit5.testing;
