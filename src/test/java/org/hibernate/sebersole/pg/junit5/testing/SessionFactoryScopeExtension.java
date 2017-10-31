@@ -47,18 +47,6 @@ public class SessionFactoryScopeExtension
 		System.out.println( "SessionFactoryScopeExtension#<init>" );
 	}
 
-	private void releaseSessionFactoryIfPresent(Object testInstance, ExtensionContext context) {
-		// We need the exact same context the session factory was defined on, i.e. the class context
-		// Otherwise the remove() operation on the store would not work
-		if ( context.getTestMethod().isPresent() ) {
-			context = context.getParent().get();
-		}
-		ExtensionContext.Store store = context.getStore( namespace( testInstance ) );
-		final SessionFactoryScope scope = (SessionFactoryScope) store.remove( SESSION_FACTORY_KEY );
-		if ( scope != null ) {
-			scope.releaseSessionFactory();
-		}
-	}
 
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// TestInstancePostProcessor
