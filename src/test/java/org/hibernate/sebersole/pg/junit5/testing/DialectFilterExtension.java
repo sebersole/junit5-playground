@@ -9,6 +9,7 @@ package org.hibernate.sebersole.pg.junit5.testing;
 import java.util.function.Supplier;
 
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
+import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
 
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
@@ -17,7 +18,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 /**
  * @author Steve Ebersole
  */
-public class DialectFilterExtension implements ExecutionCondition {
+public class DialectFilterExtension
+		implements ExecutionCondition {
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 		if ( !context.getTestInstance().isPresent() ) {
@@ -31,10 +33,15 @@ public class DialectFilterExtension implements ExecutionCondition {
 		}
 
 		final Object testInstance = context.getRequiredTestInstance();
-		final ExtensionContext.Store store = context.getStore( SessionFactoryScopeExtension.NAMESPACE );
-		final SessionFactoryScope sfScope = (SessionFactoryScope) store.get( testInstance );
+		ExtensionContext.Store store = context.getStore( SessionFactoryScopeExtension.NAMESPACE );
+
+		DialectAccess sfScope = (DialectAccess) store.get( testInstance );
 		if ( sfScope == null ) {
-			throw new RuntimeException( "Could not locate SessionFactoryScope in JUnit ExtensionContext" );
+			store = context.getStore( DialectAccess.NAMESPACE );
+			sfScope = (DialectAccess) store.get( testInstance );
+			if ( sfScope == null ) {
+				throw new RuntimeException( "Could not locate any DialectAccess implementation in JUnit ExtensionContext" );
+			}
 		}
 
 		final Dialect dialect = sfScope.getDialect();
