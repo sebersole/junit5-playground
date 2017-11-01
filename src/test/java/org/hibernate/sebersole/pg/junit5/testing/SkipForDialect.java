@@ -23,6 +23,6 @@ import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 @Repeatable( SkipForDialectGroup.class  )
 public @interface SkipForDialect {
 	Class<? extends Dialect> dialectClass();
-	boolean allowSubTypes() default false;
+	boolean matchSubTypes() default false;
 	String reason() default "<undefined>";
 }
