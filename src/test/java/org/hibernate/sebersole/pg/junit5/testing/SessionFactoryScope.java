@@ -12,6 +12,8 @@ import org.hibernate.sebersole.pg.junit5.stubs.Session;
 import org.hibernate.sebersole.pg.junit5.stubs.SessionFactory;
 import org.hibernate.sebersole.pg.junit5.stubs.SessionFactoryAccess;
 
+import org.jboss.logging.Logger;
+
 /**
  * A scope or holder fot the SessionFactory instance associated with a
  * given test class.  Used to:
@@ -23,24 +25,26 @@ import org.hibernate.sebersole.pg.junit5.stubs.SessionFactoryAccess;
  * @author Steve Ebersole
  */
 public class SessionFactoryScope implements SessionFactoryAccess {
+	private static final Logger log = Logger.getLogger( SessionFactoryScope.class );
+
 	private final SessionFactoryProducer producer;
 
 	private SessionFactory sessionFactory;
 
 	public SessionFactoryScope(SessionFactoryProducer producer) {
-		System.out.println( "SessionFactoryScope#<init>" );
+		log.trace( "SessionFactoryScope#<init>" );
 		this.producer = producer;
 	}
 
 	public void rebuild() {
-		System.out.println( "SessionFactoryScope#rebuild" );
+		log.trace( "SessionFactoryScope#rebuild" );
 		releaseSessionFactory();
 
 		sessionFactory = producer.produceSessionFactory();
 	}
 
 	public void releaseSessionFactory() {
-		System.out.println( "SessionFactoryScope#releaseSessionFactory" );
+		log.trace( "SessionFactoryScope#releaseSessionFactory" );
 		if ( sessionFactory != null ) {
 			sessionFactory.close();
 		}
@@ -48,7 +52,7 @@ public class SessionFactoryScope implements SessionFactoryAccess {
 
 	@Override
 	public SessionFactory getSessionFactory() {
-		System.out.println( "SessionFactoryScope#getSessionFactory" );
+		log.trace( "SessionFactoryScope#getSessionFactory" );
 		if ( sessionFactory == null ) {
 			sessionFactory = producer.produceSessionFactory();
 		}
@@ -56,18 +60,18 @@ public class SessionFactoryScope implements SessionFactoryAccess {
 	}
 
 	public void withSession(Consumer<Session> action) {
-		System.out.println( "  >> SessionFactoryScope#withSession" );
+		log.trace( "  >> SessionFactoryScope#withSession" );
 
 		final Session session = getSessionFactory().openSession();
-		System.out.println( "  >> SessionFactoryScope - Session opened" );
+		log.trace( "  >> SessionFactoryScope - Session opened" );
 
 		try {
-			System.out.println( "    >> SessionFactoryScope - calling action" );
+			log.trace( "    >> SessionFactoryScope - calling action" );
 			action.accept( session );
-			System.out.println( "    >> SessionFactoryScope - called action" );
+			log.trace( "    >> SessionFactoryScope - called action" );
 		}
 		finally {
-			System.out.println( "  >> SessionFactoryScope - closing Session" );
+			log.trace( "  >> SessionFactoryScope - closing Session" );
 			session.close();
 		}
 	}

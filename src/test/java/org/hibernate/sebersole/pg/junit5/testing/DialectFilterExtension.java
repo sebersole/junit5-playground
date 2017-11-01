@@ -17,10 +17,14 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import org.jboss.logging.Logger;
+
 /**
  * @author Steve Ebersole
  */
 public class DialectFilterExtension implements ExecutionCondition {
+	private static final Logger log = Logger.getLogger( DialectFilterExtension.class );
+
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
 		if ( !context.getTestInstance().isPresent() ) {
@@ -38,8 +42,7 @@ public class DialectFilterExtension implements ExecutionCondition {
 			throw new RuntimeException( "#getDialect returned null" );
 		}
 
-		System.out.printf( "Checking Dialect [%s] - context = %s", dialect, context.getDisplayName() );
-		System.out.println();
+		log.tracef( "Checking Dialect [%s] - context = %s", dialect, context.getDisplayName() );
 
 		// NOTE : JUnit will call this method once at the Class (container) level,
 		//		and then again for each test

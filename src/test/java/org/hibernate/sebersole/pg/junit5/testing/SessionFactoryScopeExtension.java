@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
+import org.jboss.logging.Logger;
+
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 
 /**
@@ -28,6 +30,8 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
  */
 public class SessionFactoryScopeExtension
 		implements TestInstancePostProcessor, AfterAllCallback {
+	private static final Logger log = Logger.getLogger( SessionFactoryScopeExtension.class );
+
 
 	public static ExtensionContext.Namespace namespace(Object testInstance) {
 		return create( SessionFactoryScopeExtension.class.getName(), testInstance );
@@ -46,7 +50,7 @@ public class SessionFactoryScopeExtension
 
 
 	public SessionFactoryScopeExtension() {
-		System.out.println( "SessionFactoryScopeExtension#<init>" );
+		log.trace( "SessionFactoryScopeExtension#<init>" );
 	}
 
 
@@ -55,7 +59,7 @@ public class SessionFactoryScopeExtension
 
 	@Override
 	public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-		System.out.println( "SessionFactoryScopeExtension#postProcessTestInstance" );
+		log.trace( "SessionFactoryScopeExtension#postProcessTestInstance" );
 		if ( SessionFactoryScopeContainer.class.isInstance( testInstance ) ) {
 			final SessionFactoryScopeContainer scopeContainer = SessionFactoryScopeContainer.class.cast(
 					testInstance );
