@@ -16,15 +16,11 @@ import org.hibernate.sebersole.pg.junit5.testing.SessionFactoryScopeContainer;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.TestInstance;
 
 /**
  * @author Steve Ebersole
  */
 @FunctionalSessionFactoryTesting
-// for some reason I had to put this here, even though it is on @FunctionalSessionFactoryTesting
-//		it seems to be something related to the combo of composed annotation and inheritance
-@TestInstance( TestInstance.Lifecycle.PER_CLASS )
 public abstract class AbstractDialectFilteringTest
 		implements SessionFactoryScopeContainer, SessionFactoryProducer {
 
