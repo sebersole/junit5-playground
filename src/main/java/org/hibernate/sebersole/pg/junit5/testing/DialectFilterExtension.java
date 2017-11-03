@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
+import org.hibernate.sebersole.pg.junit5.stubs.DialectFeatureCheck;
 
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
@@ -90,6 +91,30 @@ public class DialectFilterExtension implements ExecutionCondition {
 				if ( effectiveSkipForDialect.dialectClass().equals( dialect.getClass() ) ) {
 					return ConditionEvaluationResult.disabled( "Matched @SkipForDialect" );
 				}
+			}
+		}
+
+		List<RequiresDialectFeature> effectiveRequiresDialectFeatures = AnnotationUtil.findEffectiveRepeatingAnnotation(
+				context,
+				RequiresDialectFeature.class,
+				RequiresDialectFeatureGroup.class
+		);
+
+		for ( RequiresDialectFeature effectiveRequiresDialectFeature : effectiveRequiresDialectFeatures ) {
+			try {
+				final DialectFeatureCheck dialectFeatureCheck = effectiveRequiresDialectFeature.featureCheck()
+						.newInstance();
+				if ( !dialectFeatureCheck.apply( getDialect( context ) ) ) {
+					return ConditionEvaluationResult.disabled(
+							String.format(
+									Locale.ROOT,
+									"Failed @RequiresDialectFeature [%s]",
+									effectiveRequiresDialectFeature.featureCheck()
+							) );
+				}
+			}
+			catch (InstantiationException | IllegalAccessException e) {
+				throw new RuntimeException( "Unable to instantiate DialectFeatureCheck class", e );
 			}
 		}
 

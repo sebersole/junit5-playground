@@ -12,4 +12,7 @@ package org.hibernate.sebersole.pg.junit5.stubs;
  * @author Steve Ebersole
  */
 public interface Dialect {
+	default boolean canCreateSchema() {
+		return false;
+	}
 }
