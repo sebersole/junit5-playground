@@ -6,7 +6,6 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema;
 
-import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.BaseSchemaTest;
 import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaScope;
 import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaTest;
 import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;

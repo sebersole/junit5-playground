@@ -9,6 +9,8 @@ package org.hibernate.sebersole.pg.junit5.functional.schema.testing;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaScope;
+
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -27,11 +29,11 @@ public abstract class TestTemplateExtension
 	@Override
 	public void afterTestExecution(ExtensionContext context) throws Exception {
 		final Object testInstance = context.getRequiredTestInstance();
-		if ( !TestScope.class.isInstance( testInstance ) ) {
+		if ( !TestScopeProducer.class.isInstance( testInstance ) ) {
 			throw new RuntimeException( "Test instance does not implement TestScope" );
 		}
 
-		( (TestScope) testInstance ).clear();
+		( (TestScopeProducer) testInstance ).clearTestScopre();
 	}
 
 	public class CustomTestTemplateInvocationContext
@@ -39,14 +41,14 @@ public abstract class TestTemplateExtension
 		private final TestParameter parameter;
 		private final Class<?> parameterClass;
 
-		public CustomTestTemplateInvocationContext(TestParameter parameter, Class<? extends TestScope> parameterClass) {
+		public CustomTestTemplateInvocationContext(TestParameter parameter, Class<? extends SchemaScope> parameterClass) {
 			this.parameter = parameter;
 			this.parameterClass = parameterClass;
 		}
 
 		@Override
 		public String getDisplayName(int invocationIndex) {
-			return parameter.toString();
+			return parameter.getValue().toString();
 		}
 
 		@Override

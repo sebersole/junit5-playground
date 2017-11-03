@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema;
+package org.hibernate.sebersole.pg.junit5.functional.schema;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +21,10 @@ import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.StandardService
 import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.StandardServiceRegistryBuilder;
 import org.hibernate.sebersole.pg.junit5.functional.schema.testing.FunctionalMetaModelTesting;
 import org.hibernate.sebersole.pg.junit5.functional.schema.testing.TestParameter;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaScope;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.SchemaScopeProducer;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.ServiceRegistryAccess;
+import org.hibernate.sebersole.pg.junit5.functional.schema.testing.ServiceRegistryContainer;
 import org.hibernate.sebersole.pg.junit5.stubs.Dialect;
 import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
 
@@ -29,11 +33,12 @@ import org.hibernate.sebersole.pg.junit5.stubs.DialectAccess;
  */
 @FunctionalMetaModelTesting
 public class BaseSchemaTest
-		implements DialectAccess, SchemaScope, SchemaScopeProducer {
+		implements DialectAccess, ServiceRegistryAccess, ServiceRegistryContainer, SchemaScopeProducer {
 	public static String HBM2DDL_JDBC_METADATA_EXTRACTOR_STRATEGY = "hibernate.hbm2ddl.jdbc_metadata_extraction_strategy";
 
 	private StandardServiceRegistry standardServiceRegistry;
 	private DatabaseModel databaseModel;
+	private SchemaScope schemaScope;
 
 	@Override
 	public Dialect getDialect() {
@@ -44,8 +49,8 @@ public class BaseSchemaTest
 	}
 
 	@Override
-	public void clear() {
-		StandardServiceRegistryBuilder.destroy( standardServiceRegistry );
+	public void clearTestScopre() {
+		schemaScope.clearScope();
 	}
 
 	@Override
@@ -62,23 +67,8 @@ public class BaseSchemaTest
 	public SchemaScope produceTestScope(TestParameter<String> metadataExtractionStrategy) {
 		setStandardServiceRegistry( buildStandardServiceRegistry( metadataExtractionStrategy.getValue() ) );
 		databaseModel = buildDatabaseModel();
-		return this;
-	}
-
-	@Override
-	public void withSchemaUpdate(Consumer<SchemaUpdate> counsumer) {
-		SchemaUpdate schemaUpdate = new SchemaUpdate( databaseModel, getStandardServiceRegistry() );
-		counsumer.accept( schemaUpdate );
-	}
-
-	@Override
-	public void withSchemaValidator(Consumer<SchemaValidator> counsumer) {
-
-	}
-
-	@Override
-	public void withSchemaExport(Consumer<SchemaExport> counsumer) {
-
+		schemaScope = new SchemaScopeImpl();
+		return schemaScope;
 	}
 
 	static final Class<?>[] NO_CLASSES = new Class[0];
@@ -144,6 +134,27 @@ public class BaseSchemaTest
 		Class<?>[] annotatedClasses = getAnnotatedClasses();
 		for ( int i = 0; i < annotatedClasses.length; i++ ) {
 			metadataSources.addAnnotatedClass( annotatedClasses[i] );
+		}
+	}
+
+	public class SchemaScopeImpl implements SchemaScope {
+		@Override
+		public void withSchemaUpdate(Consumer<SchemaUpdate> counsumer) {
+			SchemaUpdate schemaUpdate = new SchemaUpdate( databaseModel, getStandardServiceRegistry() );
+			counsumer.accept( schemaUpdate );
+		}
+
+		@Override
+		public void withSchemaValidator(Consumer<SchemaValidator> counsumer) {
+		}
+
+		@Override
+		public void withSchemaExport(Consumer<SchemaExport> counsumer) {
+		}
+
+		@Override
+		public void clearScope() {
+			StandardServiceRegistryBuilder.destroy( standardServiceRegistry );
 		}
 	}
 

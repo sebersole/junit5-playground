@@ -11,4 +11,6 @@ package org.hibernate.sebersole.pg.junit5.functional.schema.testing;
  */
 public interface TestScopeProducer<T extends TestScope, U> {
 	T produceTestScope(TestParameter<U> parameter);
+
+	void clearTestScopre();
 }

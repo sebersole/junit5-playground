@@ -47,7 +47,6 @@ public class SchemaTestExtension
 			this.metadataExtractionStartegy = metadataExtractionStartegy;
 		}
 
-
 		@Override
 		public String getValue() {
 			return metadataExtractionStartegy;

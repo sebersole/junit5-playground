@@ -6,7 +6,7 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema.stubs;
 
-import org.hibernate.sebersole.pg.junit5.functional.schema.testing.schema.BaseSchemaTest;
+import org.hibernate.sebersole.pg.junit5.functional.schema.BaseSchemaTest;
 
 /**
  * @author Andrea Boriero

@@ -18,11 +18,6 @@ import org.hibernate.sebersole.pg.junit5.functional.schema.testing.TestScope;
  * @author Andrea Boriero
  */
 public interface SchemaScope extends TestScope {
-
-	StandardServiceRegistry getStandardServiceRegistry();
-
-	void setStandardServiceRegistry(StandardServiceRegistry standardServiceRegistry);
-
 	void withSchemaUpdate(Consumer<SchemaUpdate> counsumer);
 
 	void withSchemaValidator(Consumer<SchemaValidator> counsumer);

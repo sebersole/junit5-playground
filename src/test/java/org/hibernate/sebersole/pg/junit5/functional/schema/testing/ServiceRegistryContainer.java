@@ -6,9 +6,11 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.schema.testing;
 
+import org.hibernate.sebersole.pg.junit5.functional.schema.stubs.StandardServiceRegistry;
+
 /**
  * @author Andrea Boriero
  */
-public interface TestScope {
-	void clearScope();
+public interface ServiceRegistryContainer {
+	void setStandardServiceRegistry(StandardServiceRegistry standardServiceRegistry);
 }
