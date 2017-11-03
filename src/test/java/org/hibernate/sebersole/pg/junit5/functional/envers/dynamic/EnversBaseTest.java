@@ -13,9 +13,8 @@ import java.util.List;
 import org.hibernate.sebersole.pg.junit5.functional.envers.EnversAfterEach;
 import org.hibernate.sebersole.pg.junit5.functional.envers.EnversBeforeEach;
 import org.hibernate.sebersole.pg.junit5.functional.envers.EnversTest;
-import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
+import org.hibernate.sebersole.pg.junit5.functional.envers.template.Strategy;
 import org.hibernate.sebersole.pg.junit5.stubs.SessionFactory;
-import org.hibernate.sebersole.pg.junit5.stubs.SessionFactoryStub;
 
 import org.junit.jupiter.api.DynamicContainer;
 import org.junit.jupiter.api.DynamicNode;
@@ -32,8 +31,6 @@ import static org.junit.platform.commons.util.ReflectionUtils.findMethods;
 public abstract class EnversBaseTest implements EnversSessionFactoryProducer {
 	private static final Logger log = Logger.getLogger( EnversBaseTest.class );
 
-	private final String[] strategies = new String[] { null, "validity" };
-
 	private EnversSessionFactoryScope sessionFactoryScope;
 
 	protected SessionFactory sessionFactory() {
@@ -49,7 +46,7 @@ public abstract class EnversBaseTest implements EnversSessionFactoryProducer {
 		final List<Method> beforeEachMethods = findMethods( testClass, method -> method.isAnnotationPresent( EnversBeforeEach.class ) );
 		final List<Method> afterEachMethods = findMethods( testClass, method -> method.isAnnotationPresent( EnversAfterEach.class ) );
 
-		for ( String strategy : strategies ) {
+		for ( Strategy strategy : Strategy.values() ) {
 			final EnversBaseTest testClassInstanceForStrategy = testClass.newInstance();
 			final EnversSessionFactoryScope scope = new EnversSessionFactoryScope( testClassInstanceForStrategy, strategy );
 			testClassInstanceForStrategy.sessionFactoryScope = scope;
@@ -105,11 +102,5 @@ public abstract class EnversBaseTest implements EnversSessionFactoryProducer {
 		}
 
 		return nodes;
-	}
-
-	@Override
-	public SessionFactory produceSessionFactory(String auditStrategyName) {
-		log.debugf( "Producing SessionFactory - %s", auditStrategyName );
-		return new SessionFactoryStub( new H2Dialect() );
 	}
 }

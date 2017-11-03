@@ -8,8 +8,9 @@ package org.hibernate.sebersole.pg.junit5.functional.envers.dynamic;
 
 import java.util.function.Consumer;
 
+import org.hibernate.sebersole.pg.junit5.functional.envers.EnversSessionFactory;
+import org.hibernate.sebersole.pg.junit5.functional.envers.template.Strategy;
 import org.hibernate.sebersole.pg.junit5.stubs.Session;
-import org.hibernate.sebersole.pg.junit5.stubs.SessionFactory;
 import org.hibernate.sebersole.pg.junit5.stubs.SessionFactoryAccess;
 
 import org.jboss.logging.Logger;
@@ -28,30 +29,31 @@ public class EnversSessionFactoryScope implements SessionFactoryAccess {
 	private static final Logger log = Logger.getLogger( EnversSessionFactoryScope.class );
 
 	private final EnversSessionFactoryProducer producer;
-	private final String auditStrategyName;
+	private final Strategy auditStrategy;
 
-	private SessionFactory sessionFactory;
+	private EnversSessionFactory sessionFactory;
 
 	public EnversSessionFactoryScope(
 			EnversSessionFactoryProducer producer,
-			String auditStrategyName) {
-		log.trace( "EnversSessionFactoryScope#<init>" );
+			Strategy auditStrategy) {
+		log.tracef( "#<init> - %s", auditStrategy.getDisplayName() );
+		this.auditStrategy = auditStrategy;
 		this.producer = producer;
-		this.auditStrategyName = auditStrategyName;
 	}
 
 	public void releaseSessionFactory() {
-		log.trace( "EnversSessionFactoryScope#releaseSessionFactory" );
+		log.tracef( "#releaseSessionFactory - %s", auditStrategy.getDisplayName() );
 		if ( sessionFactory != null ) {
 			sessionFactory.close();
+			sessionFactory = null;
 		}
 	}
 
 	@Override
-	public SessionFactory getSessionFactory() {
-		log.trace( "EnversSessionFactoryScope#getSessionFactory" );
-		if ( sessionFactory == null ) {
-			sessionFactory = producer.produceSessionFactory( auditStrategyName );
+	public EnversSessionFactory getSessionFactory() {
+		log.tracef( "#getSessionFactory - %s", auditStrategy );
+		if ( sessionFactory == null || sessionFactory.isClosed() ) {
+			sessionFactory = producer.produceSessionFactory( auditStrategy.getSettingValue() );
 		}
 		return sessionFactory;
 	}

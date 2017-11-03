@@ -6,11 +6,20 @@
  */
 package org.hibernate.sebersole.pg.junit5.functional.envers.dynamic;
 
-import org.hibernate.sebersole.pg.junit5.stubs.SessionFactory;
+import org.hibernate.sebersole.pg.junit5.functional.envers.EnversSessionFactory;
+import org.hibernate.sebersole.pg.junit5.functional.envers.EnversSessionFactoryStub;
+import org.hibernate.sebersole.pg.junit5.stubs.H2Dialect;
+
+import org.jboss.logging.Logger;
 
 /**
  * @author Steve Ebersole
  */
 public interface EnversSessionFactoryProducer {
-	SessionFactory produceSessionFactory(String auditStrategyName);
+	Logger log = Logger.getLogger( EnversSessionFactoryProducer.class );
+
+	default EnversSessionFactory produceSessionFactory(String auditStrategyName) {
+		log.infof( "Producing SessionFactory - %s", auditStrategyName );
+		return new EnversSessionFactoryStub( new H2Dialect(), auditStrategyName );
+	}
 }
